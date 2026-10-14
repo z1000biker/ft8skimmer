@@ -25,6 +25,9 @@ public sealed class UsbDemodulator
         _upStep = 2 * Math.PI * 1500.0 / AudioRate;
     }
 
+    /// <summary>Αντιστροφή φάσματος (συζυγές IQ), για διαδρομές που αναστρέφουν το σήμα.</summary>
+    public bool InvertSpectrum { get; set; }
+
     public void SetOffset(double offsetHz) => _ncoStep = -2 * Math.PI * (offsetHz + 1500.0) / _inRate;
 
     public void Reset()
@@ -42,10 +45,11 @@ public sealed class UsbDemodulator
         Ensure(ref _i3, n / 80 + 2); Ensure(ref _q3, n / 80 + 2);
 
         double ph = _ncoPhase, st = _ncoStep;
+        float qs = InvertSpectrum ? -1f / 128f : 1f / 128f;
         for (int k = 0; k < n; k++)
         {
             float x = (iq[2 * k] - 127.4f) * (1 / 128f);
-            float y = (iq[2 * k + 1] - 127.4f) * (1 / 128f);
+            float y = (iq[2 * k + 1] - 127.4f) * qs;
             float c = (float)Math.Cos(ph), s = (float)Math.Sin(ph);
             _i[k] = x * c - y * s;
             _q[k] = x * s + y * c;

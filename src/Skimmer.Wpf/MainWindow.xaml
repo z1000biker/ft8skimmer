@@ -38,6 +38,8 @@
             <TextBlock Text="ppm" Margin="14,0,6,0"/>
             <TextBox x:Name="PpmBox" Width="40"/>
             <CheckBox x:Name="BiasTeeBox" Content="Bias-T" Margin="14,0,0,0"/>
+            <CheckBox x:Name="InvertBox" Content="Invert IQ" Margin="10,0,0,0" ToolTip="Swap spectrum (try this if the waterfall shows no FT8 signals)"/>
+            <CheckBox x:Name="KeepWavBox" Content="Save WAV" Margin="10,0,0,0" ToolTip="Keep each 15 s slot as WAV in %LOCALAPPDATA%\RtlFt8Skimmer\wav"/>
             <TextBlock Text="Slots/band" Margin="14,0,6,0"/>
             <ComboBox x:Name="DwellBox" Width="45" SelectedIndex="0">
                 <ComboBoxItem Content="1"/><ComboBoxItem Content="2"/><ComboBoxItem Content="4"/>

@@ -17,6 +17,8 @@ public sealed partial class Jt9Decoder : IFt8Decoder
     private readonly string _exe;
     private readonly string _work;
     public int Depth { get; set; } = 3;
+    /// <summary>Αν οριστεί, κρατά αντίγραφο κάθε WAV εκεί (για έλεγχο στο WSJT-X).</summary>
+    public string? KeepWavDir { get; set; }
 
     public Jt9Decoder(string jt9Path, string workDir)
     {
@@ -62,7 +64,16 @@ public sealed partial class Jt9Decoder : IFt8Decoder
         using var p = Process.Start(psi) ?? throw new InvalidOperationException("Could not start jt9");
         var stdout = await p.StandardOutput.ReadToEndAsync(ct);
         await p.WaitForExitAsync(ct);
-        try { File.Delete(wav); } catch { /* αδιάφορο */ }
+        try
+        {
+            if (KeepWavDir is not null)
+            {
+                Directory.CreateDirectory(KeepWavDir);
+                File.Copy(wav, Path.Combine(KeepWavDir, tag + "_" + Path.GetFileName(wav)), true);
+            }
+            File.Delete(wav);
+        }
+        catch { /* αδιάφορο */ }
 
         var res = new List<DecodeLine>();
         foreach (var line in stdout.Split('\n'))

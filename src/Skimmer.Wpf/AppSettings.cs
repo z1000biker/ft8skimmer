@@ -13,6 +13,8 @@ public sealed class AppSettings
     public double GainDb { get; set; } = 28.0;
     public int Ppm { get; set; }
     public bool BiasTee { get; set; }
+    public bool InvertSpectrum { get; set; }
+    public bool KeepWav { get; set; }
     public int DwellSlots { get; set; } = 1;
     public bool PskReporter { get; set; }
     public bool PskReporterTest { get; set; } = true;

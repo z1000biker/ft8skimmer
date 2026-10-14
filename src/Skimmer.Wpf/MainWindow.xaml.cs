@@ -50,6 +50,8 @@ public partial class MainWindow : Window
         GridBox.Text = _settings.MyGrid;
         PpmBox.Text = _settings.Ppm.ToString(CultureInfo.InvariantCulture);
         BiasTeeBox.IsChecked = _settings.BiasTee;
+        InvertBox.IsChecked = _settings.InvertSpectrum;
+        KeepWavBox.IsChecked = _settings.KeepWav;
         DwellBox.SelectedIndex = _settings.DwellSlots switch { 2 => 1, 4 => 2, _ => 0 };
         Jt9Box.Text = _settings.Jt9Path;
         PskBox.IsChecked = _settings.PskReporter;
@@ -147,8 +149,11 @@ public partial class MainWindow : Window
                 PpmCorrection = _settings.Ppm,
                 BiasTee = _settings.BiasTee,
             };
-            var opts = new SkimmerOptions { MyCall = call, MyGrid = grid };
-            var dec = new Jt9Decoder(_settings.Jt9Path, Path.Combine(AppSettings.Folder, "jt9"));
+            var opts = new SkimmerOptions { MyCall = call, MyGrid = grid, InvertSpectrum = _settings.InvertSpectrum };
+            var dec = new Jt9Decoder(_settings.Jt9Path, Path.Combine(AppSettings.Folder, "jt9"))
+            {
+                KeepWavDir = _settings.KeepWav ? Path.Combine(AppSettings.Folder, "wav") : null,
+            };
             _engine = new SkimmerEngine(src, new BandSchedule(selected, _settings.DwellSlots), dec, opts);
 
             _engine.SpotDecoded += s => Dispatcher.BeginInvoke(() => OnSpot(s));
@@ -200,6 +205,8 @@ public partial class MainWindow : Window
         _settings.GainDb = GainBox.SelectedItem is string g && double.TryParse(g, NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : -1;
         _settings.Ppm = int.TryParse(PpmBox.Text, out var p) ? p : 0;
         _settings.BiasTee = BiasTeeBox.IsChecked == true;
+        _settings.InvertSpectrum = InvertBox.IsChecked == true;
+        _settings.KeepWav = KeepWavBox.IsChecked == true;
         _settings.DwellSlots = DwellBox.SelectedIndex switch { 1 => 2, 2 => 4, _ => 1 };
         _settings.PskReporter = PskBox.IsChecked == true;
         _settings.PskReporterTest = PskTestBox.IsChecked == true;

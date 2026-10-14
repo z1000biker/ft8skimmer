@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Skimmer.Core;
 using Skimmer.Core.Dsp;
 
@@ -95,6 +95,17 @@ foreach (var (bandName, msgs) in plan)
     }
 Check(!got.Any(s => !plan[s.Band.Name].Any(p => p.Msg == s.Message)), "καμία αποκωδικοποίηση σε λάθος ζώνη");
 
+// αντεστραμμένο φάσμα: χωρίς διόρθωση τίποτα, με InvertSpectrum ξανά όλα
+foreach (bool fix in new[] { false, true })
+{
+    var s2 = new SynthSource(audioByDial, opts.TuneOffsetHz, start, seconds: 2 * 15, snrDb: -12) { Invert = true };
+    var o2 = new SkimmerOptions { MyGrid = "KM17", InvertSpectrum = fix };
+    var e2 = new SkimmerEngine(s2, new BandSchedule([Bands.ByName("20m")!]), new Jt9Decoder("jt9", Path.Combine(work, "jt9b")), o2);
+    int n2 = 0; e2.SpotDecoded += _ => Interlocked.Increment(ref n2);
+    e2.Start(); e2.Completion!.Wait();
+    Check(fix ? n2 >= 6 : n2 == 0, $"αντεστραμμένο IQ, InvertSpectrum={fix}: {n2} αποκωδικοποιήσεις");
+}
+
 Console.WriteLine(fails == 0 ? "\nΌλα εντάξει." : $"\n{fails} αποτυχίες.");
 return fails == 0 ? 0 : 1;
 
@@ -118,6 +129,7 @@ sealed class SynthSource : IIqSource
     private long _center;
     private readonly Random _rng = new(1);
     public int Retunes;
+    public bool Invert;
 
     public SynthSource(Dictionary<long, float[]> audio, double offset, DateTime start, int seconds, double snrDb)
     {
@@ -175,6 +187,7 @@ sealed class SynthSource : IIqSource
                 }
             }
             buf[2 * k] = (byte)Math.Clamp(Math.Round(127.4 + 128 * i), 0, 255);
+            if (Invert) q = -q;
             buf[2 * k + 1] = (byte)Math.Clamp(Math.Round(127.4 + 128 * q), 0, 255);
         }
         return samples * 2;

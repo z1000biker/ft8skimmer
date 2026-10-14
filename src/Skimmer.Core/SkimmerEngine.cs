@@ -12,6 +12,8 @@ public sealed class SkimmerOptions
     public double RetuneAtSecond { get; set; } = 14.0;
     /// <summary>Δευτερόλεπτα που απορρίπτονται μετά την αλλαγή (μεταβατικά PLL/φίλτρων).</summary>
     public double SettleSeconds { get; set; } = 0.15;
+    /// <summary>Αντιστροφή φάσματος IQ.</summary>
+    public bool InvertSpectrum { get; set; }
 }
 
 /// <summary>
@@ -50,7 +52,7 @@ public sealed class SkimmerEngine : IDisposable
     public SkimmerEngine(IIqSource source, BandSchedule schedule, IFt8Decoder decoder, SkimmerOptions options)
     {
         _src = source; _schedule = schedule; _decoder = decoder; _opt = options;
-        _demod = new Dsp.UsbDemodulator(source.SampleRate, options.TuneOffsetHz);
+        _demod = new Dsp.UsbDemodulator(source.SampleRate, options.TuneOffsetHz) { InvertSpectrum = options.InvertSpectrum };
     }
 
     public Band? CurrentBand => _slotBand;
