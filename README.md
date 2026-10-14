@@ -61,8 +61,8 @@ Packages for **x64** and **ARM64** (Raspberry Pi 4/5 with a 64-bit OS) are on th
 
 ```
 sudo apt install wsjtx libusb-1.0-0           # jt9 decoder and USB library
-tar xzf rtlft8skimmer-v0.2.0-linux-arm64.tar.gz   # or …-linux-x64
-cd rtlft8skimmer-v0.2.0-linux-arm64
+tar xzf rtlft8skimmer-*-linux-arm64.tar.gz      # or …-linux-x64
+cd rtlft8skimmer-*-linux-arm64
 sudo ./install.sh                             # installs to /opt/rtlft8skimmer + udev rule
 rtlft8skimmer
 ```

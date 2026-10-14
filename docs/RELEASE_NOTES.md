@@ -12,7 +12,7 @@ All packages are self-contained (no .NET installation needed) and include the V4
 **Linux in four commands**
 ```
 sudo apt install wsjtx libusb-1.0-0
-tar xzf rtlft8skimmer-v0.2.0-linux-arm64.tar.gz && cd rtlft8skimmer-v0.2.0-linux-arm64
+tar xzf rtlft8skimmer-*-linux-arm64.tar.gz && cd rtlft8skimmer-*-linux-arm64
 sudo ./install.sh --service
 # open http://<pi>:8073/ , enter your callsign and locator, press Start
 ```
