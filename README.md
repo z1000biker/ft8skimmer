@@ -101,7 +101,7 @@ dotnet publish src/Skimmer.Wpf -c Release -r win-x64 --self-contained true -o pu
 
 `src/Skimmer.Wpf/native/rtlsdr.dll` is copied to the output automatically. To use a newer V4-aware build, replace that file.
 
-**CI.** Every push runs the tests on Linux and builds the Windows app. Pushing a tag `v*` also publishes a GitHub release with a ready-to-run zip.
+**CI.** Every push runs the tests on Linux and builds the Windows app. Publishing a GitHub release triggers a build that attaches the ready-to-run Windows zip to it.
 
 ## Testing without hardware
 

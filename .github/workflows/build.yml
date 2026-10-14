@@ -3,7 +3,8 @@ name: build
 on:
   push:
     branches: [main]
-    tags: ['v*']
+  release:
+    types: [published]
   pull_request:
   workflow_dispatch:
 
@@ -37,14 +38,14 @@ jobs:
       - name: Package
         shell: pwsh
         run: |
-          $ver = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { "dev" }
+          $ver = if ($env:GITHUB_EVENT_NAME -eq 'release') { $env:GITHUB_REF_NAME } else { "dev" }
           Compress-Archive -Path publish/RtlFt8Skimmer -DestinationPath "RtlFt8Skimmer-$ver-win-x64.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: RtlFt8Skimmer-win-x64
           path: RtlFt8Skimmer-*-win-x64.zip
-      - name: GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Attach zip to the release
+        if: github.event_name == 'release'
         shell: pwsh
         env: { GH_TOKEN: "${{ github.token }}" }
-        run: gh release create $env:GITHUB_REF_NAME (Get-ChildItem RtlFt8Skimmer-*-win-x64.zip).FullName --title "RtlFt8Skimmer $env:GITHUB_REF_NAME" --notes-file docs/RELEASE_NOTES.md
+        run: gh release upload $env:GITHUB_REF_NAME (Get-ChildItem RtlFt8Skimmer-*-win-x64.zip).FullName --clobber --repo $env:GITHUB_REPOSITORY
