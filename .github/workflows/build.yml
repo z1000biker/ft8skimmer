@@ -49,3 +49,49 @@ jobs:
         shell: pwsh
         env: { GH_TOKEN: "${{ github.token }}" }
         run: gh release upload $env:GITHUB_REF_NAME (Get-ChildItem RtlFt8Skimmer-*-win-x64.zip).FullName --clobber --repo $env:GITHUB_REPOSITORY
+
+  linux:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - { rid: linux-x64,   runner: ubuntu-22.04 }
+          - { rid: linux-arm64, runner: ubuntu-22.04-arm }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: 10.0.x }
+      - name: Build librtlsdr from rtl-sdr-blog v1.3.6 (V4 support)
+        run: |
+          sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev cmake
+          git clone --depth 1 --branch v1.3.6 https://github.com/rtlsdrblog/rtl-sdr-blog rtlblog
+          cmake -S rtlblog -B rtlblog/build -DCMAKE_BUILD_TYPE=Release -DINSTALL_UDEV_RULES=OFF -DDETACH_KERNEL_DRIVER=ON
+          cmake --build rtlblog/build -j4 --target rtlsdr
+          strings rtlblog/build/src/librtlsdr.so.0 | grep -q "RTL-SDR Blog V4"
+      - name: Publish (self-contained)
+        run: |
+          name=rtlft8skimmer-${{ github.event_name == 'release' && github.ref_name || 'dev' }}-${{ matrix.rid }}
+          echo "PKG=$name" >> $GITHUB_ENV
+          dotnet publish src/Skimmer.Web -c Release -r ${{ matrix.rid }} --self-contained true -o "pkg/$name"
+          cp -L rtlblog/build/src/librtlsdr.so.0 "pkg/$name/librtlsdr.so.0"
+          cp packaging/linux/* "pkg/$name/"
+          cp README.md "pkg/$name/"
+          printf 'rtlsdr: rtl-sdr-blog v1.3.6 (GPL-2.0), https://github.com/rtlsdrblog/rtl-sdr-blog/tree/v1.3.6\n' > "pkg/$name/THIRD_PARTY.txt"
+          chmod +x "pkg/$name/rtlft8skimmer" "pkg/$name/install.sh"
+          tar -C pkg -czf "$name.tar.gz" "$name"
+      - name: Smoke test (starts, serves the page)
+        run: |
+          "pkg/$PKG/rtlft8skimmer" --port 8099 --bind 127.0.0.1 &
+          sleep 5
+          curl -sf http://127.0.0.1:8099/ | grep -q "RtlFt8Skimmer"
+          curl -sf http://127.0.0.1:8099/api/status | grep -q '"running":false'
+          kill %1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PKG }}
+          path: ${{ env.PKG }}.tar.gz
+      - name: Attach to the release
+        if: github.event_name == 'release'
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh release upload "$GITHUB_REF_NAME" "$PKG.tar.gz" --clobber --repo "$GITHUB_REPOSITORY"

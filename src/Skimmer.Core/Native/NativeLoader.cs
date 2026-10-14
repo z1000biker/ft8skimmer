@@ -30,6 +30,9 @@ internal static class NativeLoader
         if (OperatingSystem.IsWindows())
             throw new DllNotFoundException(
                 $"rtlsdr.dll not found in {dir}. Copy x64/rtlsdr.dll from rtl-sdr-blog Release.zip (v1.3.6) there.");
-        return IntPtr.Zero; // Linux/macOS: κανονική αναζήτηση συστήματος
+        // Linux/macOS: βιβλιοθήκη του συστήματος (τα πακέτα χρόνου εκτέλεσης δεν έχουν το σκέτο librtlsdr.so)
+        foreach (var f in new[] { "librtlsdr.so.2", "librtlsdr.so.0", "librtlsdr.so", "librtlsdr.dylib", "librtlsdr.0.dylib" })
+            if (NativeLibrary.TryLoad(f, out var h)) return h;
+        throw new DllNotFoundException("librtlsdr not found. Use the bundled copy or install librtlsdr (2.0.1 or newer for V4 support).");
     }
 }

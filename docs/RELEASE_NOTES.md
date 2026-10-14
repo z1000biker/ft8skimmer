@@ -1,17 +1,25 @@
-First public release of RtlFt8Skimmer, a multiband FT8 skimmer for the RTL-SDR Blog V4.
+New in v0.2.0: **Linux and Raspberry Pi edition.**
 
-**Download** `RtlFt8Skimmer-v0.1.0-win-x64.zip`, unzip anywhere and run `RtlFt8Skimmer.exe`. The .NET runtime and the V4-aware `rtlsdr.dll` are included.
+The same skimmer engine now runs headless on Linux, with the full interface (map, waterfall, decode list, settings) in your browser. Put a Raspberry Pi next to the antenna and watch from any PC or phone on your network.
 
-**You still need**
-- WinUSB driver for the dongle (Zadig), as for SDR# or SDR++
-- WSJT-X installed (the app uses its `jt9.exe` decoder)
-- WebView2 Runtime (already on Windows 11)
+**Downloads**
+- `RtlFt8Skimmer-v0.2.0-win-x64.zip`: Windows desktop app. Unzip and run `RtlFt8Skimmer.exe`.
+- `rtlft8skimmer-v0.2.0-linux-x64.tar.gz`: Linux PC.
+- `rtlft8skimmer-v0.2.0-linux-arm64.tar.gz`: Raspberry Pi 4/5 with a 64-bit OS.
 
-**Highlights**
-- One RTL-SDR V4 covers 160 m to 6 m, hopping band every 15 s FT8 slot
-- Even/odd slot rotation so no band loses half of its stations
-- Live great-circle map, waterfall, decode list, stations-per-band counter
-- PSKReporter upload (test and live servers)
-- Invert IQ and Save WAV diagnostics
+All packages are self-contained (no .NET installation needed) and include the V4-aware rtlsdr library from rtl-sdr-blog v1.3.6.
 
-Enter your own callsign and locator before pressing Start.
+**Linux in four commands**
+```
+sudo apt install wsjtx libusb-1.0-0
+tar xzf rtlft8skimmer-v0.2.0-linux-arm64.tar.gz && cd rtlft8skimmer-v0.2.0-linux-arm64
+sudo ./install.sh --service
+# open http://<pi>:8073/ , enter your callsign and locator, press Start
+```
+
+**Also in this release**
+- Linux packages include a udev rule, a systemd service and an install script
+- Command-line playback of raw IQ recordings (`--iq-file`) for testing without a dongle
+- Clearer error messages per operating system
+
+Windows still needs the WinUSB driver (Zadig) and WSJT-X installed. Enter your own callsign and locator before pressing Start.

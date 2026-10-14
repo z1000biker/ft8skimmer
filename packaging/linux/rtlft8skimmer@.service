@@ -1,0 +1,13 @@
+[Unit]
+Description=RtlFt8Skimmer (multiband FT8 skimmer for the RTL-SDR Blog V4)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=%i
+ExecStart=/opt/rtlft8skimmer/rtlft8skimmer --start
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

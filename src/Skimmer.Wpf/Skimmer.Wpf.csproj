@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>RtlFt8Skimmer</AssemblyName>
     <RootNamespace>Skimmer.Wpf</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

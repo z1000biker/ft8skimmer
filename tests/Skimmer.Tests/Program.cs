@@ -4,6 +4,31 @@ using Skimmer.Core.Dsp;
 
 // Δοκιμή από άκρη σε άκρη χωρίς υλικό:
 // ft8sim → σήματα ήχου → συνθετικό IQ 960 kS/s ανά ζώνη → SkimmerEngine (αλλαγές ζώνης, DSP) → jt9.
+// Βοηθητικό: γράφει αρχείο IQ 8 bit με συνθετικό FT8 στα 20 m, για δοκιμή της web εφαρμογής.
+//   dotnet run -- --write-iq out.u8 SECONDS
+if (args.Length >= 3 && args[0] == "--write-iq")
+{
+    string wdir = Path.Combine(Path.GetTempPath(), "skim-writeiq");
+    Directory.CreateDirectory(wdir);
+    var sum = new float[180_000];
+    foreach (var (msg, f0) in new[] { ("CQ JA1XYZ PM95", 800.0), ("CQ DL1ABC JO62", 1400.0), ("N0CALL W1AW FN31", 2100.0) })
+    {
+        var d = Path.Combine(wdir, f0.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Directory.CreateDirectory(d);
+        foreach (var old in Directory.GetFiles(d, "*.wav")) File.Delete(old);
+        Run("ft8sim", d, msg, f0.ToString(System.Globalization.CultureInfo.InvariantCulture), "0", "0", "0", "1", "99");
+        var a = WavWriter.ReadMono16(Directory.GetFiles(d, "*.wav")[0]);
+        for (int i = 0; i < Math.Min(a.Length, sum.Length); i++) sum[i] += a[i];
+    }
+    var src = new SynthSource(new() { [Bands.ByName("20m")!.DialHz] = sum }, 150_000, DateTime.UnixEpoch, int.Parse(args[2]), -10);
+    src.SetCenterFrequency(Bands.ByName("20m")!.DialHz - 150_000);
+    using var fs = File.Create(args[1]);
+    var buf = new byte[1 << 16]; int n;
+    while ((n = src.Read(buf)) > 0) fs.Write(buf, 0, n);
+    Console.WriteLine($"wrote {fs.Length} bytes");
+    return 0;
+}
+
 int fails = 0;
 void Check(bool ok, string what) { Console.WriteLine($"{(ok ? "OK  " : "FAIL")} {what}"); if (!ok) fails++; }
 

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Skimmer.Core/Skimmer.Core.csproj" />
+    <Project Path="src/Skimmer.Web/Skimmer.Web.csproj" />
     <Project Path="src/Skimmer.Wpf/Skimmer.Wpf.csproj">
       <Platform Project="x64" />
     </Project>
