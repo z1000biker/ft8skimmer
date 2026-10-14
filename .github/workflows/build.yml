@@ -2,8 +2,13 @@ name: build
 
 on:
   push:
+    branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   test:
@@ -12,29 +17,34 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with: { dotnet-version: 10.0.x }
-      - name: WSJT-X (jt9, ft8sim) για τη δοκιμή από άκρη σε άκρη
+      - name: Install WSJT-X (jt9, ft8sim) for the end-to-end test
         run: sudo apt-get update && sudo apt-get install -y wsjtx
-      - name: Δοκιμές
+      - name: Tests
         run: dotnet run -c Release --project tests/Skimmer.Tests
 
   windows:
+    needs: test
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with: { dotnet-version: 10.0.x }
-      - name: Δημοσίευση
-        run: dotnet publish src/Skimmer.Wpf -c Release -o publish
-      - name: rtlsdr.dll από rtl-sdr-blog (υποστήριξη V4)
+      - name: Publish (self-contained, win-x64)
+        run: dotnet publish src/Skimmer.Wpf -c Release -r win-x64 --self-contained true -o publish/RtlFt8Skimmer
+      - name: Check bundled rtlsdr.dll
         shell: pwsh
-        continue-on-error: true
-        env: { GH_TOKEN: "${{ github.token }}" }
+        run: if (-not (Test-Path publish/RtlFt8Skimmer/rtlsdr.dll)) { throw "rtlsdr.dll missing from output" }
+      - name: Package
+        shell: pwsh
         run: |
-          gh release download --repo rtlsdrblog/rtl-sdr-blog --pattern "*.zip" --dir rtlblog
-          Get-ChildItem rtlblog -Filter *.zip | ForEach-Object { Expand-Archive $_.FullName -DestinationPath rtlblog\x -Force }
-          $dll = Get-ChildItem rtlblog\x -Recurse -Filter rtlsdr.dll | Where-Object { $_.FullName -match 'x64' } | Select-Object -First 1
-          Copy-Item $dll.FullName publish\
+          $ver = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF_NAME } else { "dev" }
+          Compress-Archive -Path publish/RtlFt8Skimmer -DestinationPath "RtlFt8Skimmer-$ver-win-x64.zip"
       - uses: actions/upload-artifact@v4
         with:
           name: RtlFt8Skimmer-win-x64
-          path: publish
+          path: RtlFt8Skimmer-*-win-x64.zip
+      - name: GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh release create $env:GITHUB_REF_NAME (Get-ChildItem RtlFt8Skimmer-*-win-x64.zip).FullName --title "RtlFt8Skimmer $env:GITHUB_REF_NAME" --notes-file docs/RELEASE_NOTES.md

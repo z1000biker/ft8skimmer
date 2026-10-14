@@ -26,7 +26,7 @@ public sealed partial class Jt9Decoder : IFt8Decoder
         Directory.CreateDirectory(_work);
     }
 
-    // 000001 -10  0.0 1500 ~  CQ SV1EEX KM17
+    // 000001 -10  0.0 1500 ~  CQ N0CALL FN31
     [GeneratedRegex(@"^\s*(\d{4,6})\s+(-?\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+~\s+(.+?)\s*$")]
     private static partial Regex LineRx();
 

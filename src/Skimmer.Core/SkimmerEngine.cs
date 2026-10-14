@@ -4,8 +4,8 @@ namespace Skimmer.Core;
 
 public sealed class SkimmerOptions
 {
-    public string MyCall { get; set; } = "SV1EEX";
-    public string MyGrid { get; set; } = "KM17";
+    public string MyCall { get; set; } = "N0CALL";
+    public string MyGrid { get; set; } = "JJ00";
     /// <summary>Πόσο κάτω από το dial συντονίζεται ο δέκτης (αποφυγή αιχμής DC).</summary>
     public double TuneOffsetHz { get; set; } = 150_000;
     /// <summary>Δευτερόλεπτο του κύκλου όπου αλλάζει ζώνη (οι εκπομπές FT8 τελειώνουν ~13,2 s).</summary>

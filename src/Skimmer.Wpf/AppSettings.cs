@@ -5,8 +5,8 @@ namespace Skimmer.Wpf;
 
 public sealed class AppSettings
 {
-    public string MyCall { get; set; } = "SV1EEX";
-    public string MyGrid { get; set; } = "KM17";
+    public string MyCall { get; set; } = "N0CALL";
+    public string MyGrid { get; set; } = "";
     public string Jt9Path { get; set; } = FindJt9();
     public uint DeviceIndex { get; set; }
     /// <summary>Κέρδος σε dB· αρνητικό = αυτόματο.</summary>

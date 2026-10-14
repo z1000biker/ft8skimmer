@@ -134,8 +134,8 @@ public partial class MainWindow : Window
 
         var call = CallBox.Text.Trim().ToUpperInvariant();
         var grid = GridBox.Text.Trim();
-        if (!Ft8Message.IsCall(call)) { Warn("Invalid callsign."); return; }
-        if (!Maidenhead.IsValid(grid)) { Warn("Invalid locator (e.g. KM17 or KM17tw)."); return; }
+        if (call == "N0CALL" || !Ft8Message.IsCall(call)) { Warn("Enter your own callsign first."); CallBox.Focus(); return; }
+        if (!Maidenhead.IsValid(grid)) { Warn("Enter your Maidenhead locator (e.g. JN58 or JN58td)."); return; }
         if (!File.Exists(Jt9Box.Text)) { Warn("jt9.exe not found. Install WSJT-X or browse to it."); return; }
         var selected = _bands.Where(b => b.Selected).Select(b => b.Band).ToList();
         if (selected.Count == 0) { Warn("Select at least one band."); return; }
