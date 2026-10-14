@@ -70,15 +70,15 @@ Settings are saved to `%LOCALAPPDATA%\RtlFt8Skimmer\settings.json`.
 
 ```mermaid
 flowchart LR
-    A[RTL-SDR V4<br/>960 kS/s IQ] --> B[Mix down<br/>offset + 1.5 kHz]
-    B --> C[FIR ÷8<br/>120 kS/s]
-    C --> D[FIR ÷10<br/>12 kS/s]
-    D --> E[Sharp sideband filter<br/>±1.52 kHz]
-    E --> F[USB audio<br/>0–3 kHz]
-    F --> G[15 s WAV]
-    G --> H[jt9 -8]
-    H --> I[Map · list · PSKReporter]
-    S[Band scheduler] -. retune at 14.0 s .-> A
+    A["RTL-SDR V4<br/>960 kS/s IQ"] --> B["Mix down<br/>offset + 1.5 kHz"]
+    B --> C["FIR ÷8<br/>120 kS/s"]
+    C --> D["FIR ÷10<br/>12 kS/s"]
+    D --> E["Sideband filter<br/>±1.52 kHz"]
+    E --> F["USB audio<br/>0–3 kHz"]
+    F --> G["15 s WAV"]
+    G --> H["jt9 -8"]
+    H --> I["Map · list · PSKReporter"]
+    S["Band scheduler"] -.->|"retune at 14.0 s"| A
 ```
 
 1. **Tuning.** The V4 is tuned 150 kHz below the FT8 dial frequency so the DC spike and its neighbourhood stay away from the signal. Below 28.8 MHz the rtl-sdr-blog driver routes the signal through the V4's upconverter automatically.
