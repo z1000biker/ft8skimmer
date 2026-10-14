@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="../Skimmer.Core/Skimmer.Core.csproj" />
     <EmbeddedResource Include="map.html" />
+    <None Include="native\*.dll" CopyToOutputDirectory="PreserveNewest" Link="%(Filename)%(Extension)" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
   </ItemGroup>
 </Project>

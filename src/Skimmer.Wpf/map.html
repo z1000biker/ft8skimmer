@@ -13,6 +13,7 @@
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
   .legend .row { cursor: pointer; user-select: none; }
   .legend .off { opacity: .35; }
+  .dark-tiles { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6); }
   .leaflet-popup-content { font: 12px/1.4 "Segoe UI", sans-serif; }
 </style>
 </head>
@@ -20,9 +21,11 @@
 <div id="map"></div>
 <script>
   const map = L.map('map', { worldCopyJump: true, zoomControl: true }).setView([30, 20], 2);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  // πλακίδια OpenStreetMap (χωρίς κλειδί), σκουρεμένα με φίλτρο CSS
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 10,
-    attribution: '&copy; OpenStreetMap &copy; CARTO'
+    className: 'dark-tiles',
+    attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
 
   let home = null, homeLatLng = null;
