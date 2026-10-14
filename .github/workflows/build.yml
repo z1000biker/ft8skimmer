@@ -1,0 +1,41 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: 10.0.x }
+      - name: WSJT-X (jt9, ft8sim) για τη δοκιμή από άκρη σε άκρη
+        run: sudo apt-get update && sudo apt-get install -y wsjtx
+      - name: Δοκιμές
+        run: dotnet run -c Release --project tests/Skimmer.Tests
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with: { dotnet-version: 10.0.x }
+      - name: Δημοσίευση
+        run: dotnet publish src/Skimmer.Wpf -c Release -o publish
+      - name: rtlsdr.dll από rtl-sdr-blog (υποστήριξη V4)
+        shell: pwsh
+        continue-on-error: true
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release download --repo rtlsdrblog/rtl-sdr-blog --pattern "*.zip" --dir rtlblog
+          Get-ChildItem rtlblog -Filter *.zip | ForEach-Object { Expand-Archive $_.FullName -DestinationPath rtlblog\x -Force }
+          $dll = Get-ChildItem rtlblog\x -Recurse -Filter rtlsdr.dll | Where-Object { $_.FullName -match 'x64' } | Select-Object -First 1
+          Copy-Item $dll.FullName publish\
+          Copy-Item (Join-Path $dll.DirectoryName 'libusb-1.0.dll') publish\ -ErrorAction SilentlyContinue
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RtlFt8Skimmer-win-x64
+          path: publish

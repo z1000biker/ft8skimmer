@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Skimmer.Core/Skimmer.Core.csproj" />
+    <Project Path="src/Skimmer.Wpf/Skimmer.Wpf.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Skimmer.Tests/Skimmer.Tests.csproj" />
+  </Folder>
+</Solution>

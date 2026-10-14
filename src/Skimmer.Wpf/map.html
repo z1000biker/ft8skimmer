@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Χάρτης διάδοσης</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html, body, #map { height: 100%; margin: 0; background: #0e1116; }
+  .legend { background: rgba(14,17,22,.85); color: #e6e6e6; padding: 6px 10px; border-radius: 6px;
+            font: 12px/1.5 "Segoe UI", sans-serif; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .legend .row { cursor: pointer; user-select: none; }
+  .legend .off { opacity: .35; }
+  .leaflet-popup-content { font: 12px/1.4 "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  const map = L.map('map', { worldCopyJump: true, zoomControl: true }).setView([30, 20], 2);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 10,
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
+  }).addTo(map);
+
+  let home = null, homeLatLng = null;
+  const stations = new Map();   // key call|band → {line, dot, t}
+  const hidden = new Set();
+  const colors = {};
+  const MAX_AGE_MS = 30 * 60 * 1000;
+
+  // ενδιάμεσα σημεία μεγίστου κύκλου ώστε οι διαδρομές να φαίνονται σωστά
+  function arc(a, b, n = 48) {
+    const r = Math.PI / 180, d = 180 / Math.PI;
+    const [la1, lo1, la2, lo2] = [a[0] * r, a[1] * r, b[0] * r, b[1] * r];
+    const w = 2 * Math.asin(Math.sqrt(Math.sin((la2 - la1) / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin((lo2 - lo1) / 2) ** 2));
+    if (w < 1e-6) return [a, b];
+    const pts = []; let prev = null;
+    for (let i = 0; i <= n; i++) {
+      const f = i / n, A = Math.sin((1 - f) * w) / Math.sin(w), B = Math.sin(f * w) / Math.sin(w);
+      const x = A * Math.cos(la1) * Math.cos(lo1) + B * Math.cos(la2) * Math.cos(lo2);
+      const y = A * Math.cos(la1) * Math.sin(lo1) + B * Math.cos(la2) * Math.sin(lo2);
+      const z = A * Math.sin(la1) + B * Math.sin(la2);
+      let lon = Math.atan2(y, x) * d;
+      if (prev !== null) { while (lon - prev > 180) lon -= 360; while (lon - prev < -180) lon += 360; }
+      prev = lon;
+      pts.push([Math.atan2(z, Math.sqrt(x * x + y * y)) * d, lon]);
+    }
+    return pts;
+  }
+
+  window.setHome = function (lat, lon, call) {
+    homeLatLng = [lat, lon];
+    if (home) home.remove();
+    home = L.circleMarker(homeLatLng, { radius: 7, color: '#fff', weight: 2, fillColor: '#ff3b3b', fillOpacity: 1 })
+      .bindTooltip(call, { permanent: true, direction: 'right', className: '' }).addTo(map);
+    map.setView(homeLatLng, 3);
+  };
+
+  window.setBands = function (list) {   // [{name, color}]
+    list.forEach(b => colors[b.name] = b.color);
+    renderLegend();
+  };
+
+  window.addSpot = function (s) {       // {call, band, lat, lon, snr, km, msg, time}
+    if (!homeLatLng) return;
+    const key = s.call + '|' + s.band;
+    const old = stations.get(key);
+    if (old) { old.line.remove(); old.dot.remove(); }
+    const col = colors[s.band] || '#ccc';
+    const line = L.polyline(arc(homeLatLng, [s.lat, s.lon]), { color: col, weight: 1.6, opacity: .8 });
+    const dot = L.circleMarker(arc(homeLatLng, [s.lat, s.lon]).at(-1), { radius: 4, color: col, fillColor: col, fillOpacity: .9, weight: 1 })
+      .bindPopup(`<b>${s.call}</b> ${s.band}<br>${s.snr} dB · ${s.km ? Math.round(s.km) + ' km' : ''}<br>${s.time} UTC<br><code>${s.msg}</code>`);
+    if (!hidden.has(s.band)) { line.addTo(map); dot.addTo(map); }
+    stations.set(key, { line, dot, band: s.band, t: Date.now() });
+    renderLegend();
+  };
+
+  function renderLegend() {
+    const counts = {};
+    stations.forEach(v => counts[v.band] = (counts[v.band] || 0) + 1);
+    const div = document.querySelector('.legend');
+    if (!div) return;
+    div.innerHTML = '<b>Σταθμοί (30′)</b><br>' + Object.keys(colors).map(b =>
+      `<div class="row ${hidden.has(b) ? 'off' : ''}" data-b="${b}"><i style="background:${colors[b]}"></i>${b}: ${counts[b] || 0}</div>`).join('');
+    div.querySelectorAll('.row').forEach(r => r.onclick = () => {
+      const b = r.dataset.b;
+      hidden.has(b) ? hidden.delete(b) : hidden.add(b);
+      stations.forEach(v => { if (v.band === b) { if (hidden.has(b)) { v.line.remove(); v.dot.remove(); } else { v.line.addTo(map); v.dot.addTo(map); } } });
+      renderLegend();
+    });
+  }
+
+  const legend = L.control({ position: 'bottomleft' });
+  legend.onAdd = () => { const d = L.DomUtil.create('div', 'legend'); L.DomEvent.disableClickPropagation(d); return d; };
+  legend.addTo(map);
+
+  setInterval(() => {
+    const now = Date.now();
+    stations.forEach((v, k) => { if (now - v.t > MAX_AGE_MS) { v.line.remove(); v.dot.remove(); stations.delete(k); } });
+    renderLegend();
+  }, 30000);
+
+  window.chrome?.webview?.postMessage('ready');
+</script>
+</body>
+</html>
