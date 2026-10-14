@@ -36,7 +36,7 @@ public sealed class BandSchedule
 
     public BandSchedule(IReadOnlyList<Band> bands, int dwellSlots = 1)
     {
-        if (bands.Count == 0) throw new ArgumentException("Επιλέξτε τουλάχιστον μία ζώνη.");
+        if (bands.Count == 0) throw new ArgumentException("Select at least one band.");
         _bands = bands; _dwell = Math.Max(1, dwellSlots);
     }
 

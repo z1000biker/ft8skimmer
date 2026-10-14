@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="el">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Χάρτης διάδοσης</title>
+<title>Propagation map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -86,7 +86,7 @@
     stations.forEach(v => counts[v.band] = (counts[v.band] || 0) + 1);
     const div = document.querySelector('.legend');
     if (!div) return;
-    div.innerHTML = '<b>Σταθμοί (30′)</b><br>' + Object.keys(colors).map(b =>
+    div.innerHTML = '<b>Stations (30′)</b><br>' + Object.keys(colors).map(b =>
       `<div class="row ${hidden.has(b) ? 'off' : ''}" data-b="${b}"><i style="background:${colors[b]}"></i>${b}: ${counts[b] || 0}</div>`).join('');
     div.querySelectorAll('.row').forEach(r => r.onclick = () => {
       const b = r.dataset.b;

@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -41,9 +41,9 @@ public partial class MainWindow : Window
         Decodes.ItemsSource = _rows;
         WfImage.Source = _wf.Bitmap;
 
-        GainBox.Items.Add("Αυτόματο");
+        GainBox.Items.Add("Auto");
         foreach (var g in R828DGains) GainBox.Items.Add(g.ToString("0.0", CultureInfo.InvariantCulture));
-        GainBox.SelectedItem = _settings.GainDb < 0 ? "Αυτόματο"
+        GainBox.SelectedItem = _settings.GainDb < 0 ? "Auto"
             : R828DGains.MinBy(g => Math.Abs(g - _settings.GainDb)).ToString("0.0", CultureInfo.InvariantCulture);
 
         CallBox.Text = _settings.MyCall;
@@ -94,7 +94,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            StatusText.Text = "Ο χάρτης δεν φόρτωσε (WebView2 Runtime;): " + ex.Message;
+            StatusText.Text = "Map failed to load (WebView2 Runtime missing?): " + ex.Message;
         }
     }
 
@@ -132,11 +132,11 @@ public partial class MainWindow : Window
 
         var call = CallBox.Text.Trim().ToUpperInvariant();
         var grid = GridBox.Text.Trim();
-        if (!Ft8Message.IsCall(call)) { Warn("Μη έγκυρο διακριτικό."); return; }
-        if (!Maidenhead.IsValid(grid)) { Warn("Μη έγκυρο locator (π.χ. KM17 ή KM17tw)."); return; }
-        if (!File.Exists(Jt9Box.Text)) { Warn("Δεν βρέθηκε το jt9.exe. Εγκαταστήστε το WSJT-X ή δείξτε τη διαδρομή."); return; }
+        if (!Ft8Message.IsCall(call)) { Warn("Invalid callsign."); return; }
+        if (!Maidenhead.IsValid(grid)) { Warn("Invalid locator (e.g. KM17 or KM17tw)."); return; }
+        if (!File.Exists(Jt9Box.Text)) { Warn("jt9.exe not found. Install WSJT-X or browse to it."); return; }
         var selected = _bands.Where(b => b.Selected).Select(b => b.Band).ToList();
-        if (selected.Count == 0) { Warn("Επιλέξτε τουλάχιστον μία ζώνη."); return; }
+        if (selected.Count == 0) { Warn("Select at least one band."); return; }
 
         SaveSettings();
         try
@@ -154,7 +154,7 @@ public partial class MainWindow : Window
             _engine.SpotDecoded += s => Dispatcher.BeginInvoke(() => OnSpot(s));
             _engine.SlotStarted += (b, t) => Dispatcher.BeginInvoke(() => OnSlot(b));
             _engine.SlotDecoded += (b, t, n) => Dispatcher.BeginInvoke(() =>
-                _lastLog = $"{t:HH:mm:ss} {b.Name}: {n} αποκωδικοποιήσεις");
+                _lastLog = $"{t:HH:mm:ss} {b.Name}: {n} decodes");
             _engine.Audio += (_, a) => _wf.Push(a);
             _engine.Log += m => Dispatcher.BeginInvoke(() => _lastLog = m);
 
@@ -167,13 +167,13 @@ public partial class MainWindow : Window
 
             _engine.Start();
             foreach (var b in _bands) b.Editable = false;
-            StartButton.Content = "■ Διακοπή";
+            StartButton.Content = "■ Stop";
             _ = PushHomeAsync();
         }
         catch (DllNotFoundException)
         {
             StopEngine();
-            Warn("Λείπει το rtlsdr.dll. Αντιγράψτε rtlsdr.dll και libusb-1.0.dll από την έκδοση του rtl-sdr-blog δίπλα στο εκτελέσιμο.");
+            Warn("rtlsdr.dll is missing. Copy rtlsdr.dll and libusb-1.0.dll (x64) from the rtl-sdr-blog release next to the executable.");
         }
         catch (Exception ex)
         {
@@ -189,7 +189,7 @@ public partial class MainWindow : Window
         _psk?.Dispose();
         _psk = null;
         foreach (var b in _bands) { b.Editable = true; b.Active = false; }
-        StartButton.Content = "▶ Έναρξη";
+        StartButton.Content = "▶ Start";
     }
 
     private void SaveSettings()
@@ -209,7 +209,7 @@ public partial class MainWindow : Window
 
     private void BrowseJt9_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new OpenFileDialog { Filter = "jt9.exe|jt9.exe|Εκτελέσιμα|*.exe", Title = "Επιλογή jt9.exe (WSJT-X\\bin)" };
+        var dlg = new OpenFileDialog { Filter = "jt9.exe|jt9.exe|Executables|*.exe", Title = "Select jt9.exe (WSJT-X\\bin)" };
         if (dlg.ShowDialog(this) == true) Jt9Box.Text = dlg.FileName;
     }
 
@@ -254,11 +254,11 @@ public partial class MainWindow : Window
             }
             it.Count = n > 0 ? n.ToString(CultureInfo.InvariantCulture) : "";
         }
-        if (_engine is null) { StatusText.Text = "Έτοιμο. " + _lastLog; return; }
+        if (_engine is null) { StatusText.Text = "Ready. " + _lastLog; return; }
         double sec = (now - DateTime.UnixEpoch).TotalSeconds % 15;
         int stations = _heard.Values.SelectMany(x => x.Keys).Distinct().Count();
-        StatusText.Text = $"{now:HH:mm:ss} UTC · κύκλος {sec,4:0.0}/15 s · {_engine.CurrentBand?.Name ?? "-"} · " +
-                          $"σταθμοί 30′: {stations} · σύνολο: {_totalDecodes} · {_lastLog}";
+        StatusText.Text = $"{now:HH:mm:ss} UTC · slot {sec,4:0.0}/15 s · {_engine.CurrentBand?.Name ?? "-"} · " +
+                          $"stations 30′: {stations} · total: {_totalDecodes} · {_lastLog}";
     }
 }
 

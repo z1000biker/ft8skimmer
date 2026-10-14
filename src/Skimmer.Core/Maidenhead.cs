@@ -12,7 +12,7 @@ public static partial class Maidenhead
     /// <summary>Κέντρο του τετραγώνου σε μοίρες (lat, lon).</summary>
     public static (double Lat, double Lon) ToLatLon(string grid)
     {
-        if (!IsValid(grid)) throw new ArgumentException($"Μη έγκυρο locator: {grid}");
+        if (!IsValid(grid)) throw new ArgumentException($"Invalid locator: {grid}");
         grid = grid.ToUpperInvariant();
         double lon = (grid[0] - 'A') * 20 - 180 + (grid[2] - '0') * 2;
         double lat = (grid[1] - 'A') * 10 - 90 + (grid[3] - '0');

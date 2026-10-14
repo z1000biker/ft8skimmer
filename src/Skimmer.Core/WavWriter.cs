@@ -36,6 +36,6 @@ public static class WavWriter
             }
             p += 8 + len;
         }
-        throw new InvalidDataException("Δεν βρέθηκε τμήμα data");
+        throw new InvalidDataException("No data chunk found");
     }
 }

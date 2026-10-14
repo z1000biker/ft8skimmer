@@ -36,7 +36,7 @@ public sealed class RtlSdrSource : IIqSource
     public void Open()
     {
         if (RtlSdrNative.rtlsdr_get_device_count() == 0)
-            throw new InvalidOperationException("Δεν βρέθηκε RTL-SDR. Ελέγξτε τον οδηγό WinUSB (Zadig).");
+            throw new InvalidOperationException("No RTL-SDR found. Check the WinUSB driver (Zadig).");
         Check(RtlSdrNative.rtlsdr_open(out _dev, DeviceIndex), "open");
         Check(RtlSdrNative.rtlsdr_set_sample_rate(_dev, (uint)SampleRate), "sample rate");
         // Το V4 δεν χρειάζεται direct sampling: ο οδηγός του rtl-sdr-blog ενεργοποιεί μόνος του τον upconverter κάτω από 28,8 MHz.
@@ -84,6 +84,6 @@ public sealed class RtlSdrSource : IIqSource
 
     private static void Check(int r, string what)
     {
-        if (r < 0) throw new InvalidOperationException($"RTL-SDR {what} απέτυχε ({r}).");
+        if (r < 0) throw new InvalidOperationException($"RTL-SDR {what} failed ({r}).");
     }
 }

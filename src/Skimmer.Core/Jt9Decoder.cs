@@ -59,7 +59,7 @@ public sealed partial class Jt9Decoder : IFt8Decoder
         foreach (var a in new[] { "-8", "-d", Depth.ToString(CultureInfo.InvariantCulture), "-a", dir, "-t", dir, wav })
             psi.ArgumentList.Add(a);
 
-        using var p = Process.Start(psi) ?? throw new InvalidOperationException("Δεν ξεκίνησε το jt9");
+        using var p = Process.Start(psi) ?? throw new InvalidOperationException("Could not start jt9");
         var stdout = await p.StandardOutput.ReadToEndAsync(ct);
         await p.WaitForExitAsync(ct);
         try { File.Delete(wav); } catch { /* αδιάφορο */ }

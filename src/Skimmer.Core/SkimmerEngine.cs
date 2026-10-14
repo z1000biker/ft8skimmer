@@ -103,7 +103,7 @@ public sealed class SkimmerEngine : IDisposable
             }
         }
         catch (OperationCanceledException) { }
-        catch (Exception ex) { Log?.Invoke($"Σφάλμα ανάγνωσης: {ex.Message}"); }
+        catch (Exception ex) { Log?.Invoke($"Read error: {ex.Message}"); }
         finally { _iq.CompleteAdding(); }
     }
 
@@ -125,7 +125,7 @@ public sealed class SkimmerEngine : IDisposable
             }
             FinishSlot(); // ό,τι έμεινε
         }
-        catch (Exception ex) { Log?.Invoke($"Σφάλμα DSP: {ex}"); }
+        catch (Exception ex) { Log?.Invoke($"DSP error: {ex}"); }
         finally
         {
             if (Interlocked.CompareExchange(ref _pendingDecodes, 0, 0) == 0) _done.TrySetResult();
@@ -177,7 +177,7 @@ public sealed class SkimmerEngine : IDisposable
     private void Tune(Band b, DateTime t)
     {
         try { _src.SetCenterFrequency((long)(b.DialHz - _opt.TuneOffsetHz)); }
-        catch (Exception ex) { Log?.Invoke($"Αλλαγή συχνότητας: {ex.Message}"); }
+        catch (Exception ex) { Log?.Invoke($"Retune: {ex.Message}"); }
         _tunedBand = b;
         _demod.Reset();
         _settleUntil = t.AddSeconds(_opt.SettleSeconds);
@@ -207,7 +207,7 @@ public sealed class SkimmerEngine : IDisposable
                 }
                 SlotDecoded?.Invoke(band, slotUtc, lines.Count);
             }
-            catch (Exception ex) { Log?.Invoke($"Αποκωδικοποίηση {band.Name}: {ex.Message}"); }
+            catch (Exception ex) { Log?.Invoke($"Decode {band.Name}: {ex.Message}"); }
             finally { _decodeGate.Release(); Interlocked.Decrement(ref _pendingDecodes); }
         });
     }

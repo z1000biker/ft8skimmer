@@ -29,7 +29,7 @@ internal static class NativeLoader
         }
         if (OperatingSystem.IsWindows())
             throw new DllNotFoundException(
-                $"Δεν βρέθηκε το rtlsdr.dll στον φάκελο {dir}. Αντιγράψτε εκεί τα rtlsdr.dll και libusb-1.0.dll (x64) του rtl-sdr-blog.");
+                $"rtlsdr.dll not found in {dir}. Copy rtlsdr.dll and libusb-1.0.dll (x64) from the rtl-sdr-blog release there.");
         return IntPtr.Zero; // Linux/macOS: κανονική αναζήτηση συστήματος
     }
 }

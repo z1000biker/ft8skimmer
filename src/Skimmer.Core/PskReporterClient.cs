@@ -63,7 +63,7 @@ public sealed class PskReporterClient : IDisposable
         {
             foreach (var pkt in BuildPackets(batch))
                 _udp.Send(pkt, pkt.Length, Host, _port);
-            Log?.Invoke($"PSKReporter: στάλθηκαν {batch.Count} αναφορές.");
+            Log?.Invoke($"PSKReporter: sent {batch.Count} reports.");
         }
         catch (Exception ex) { Log?.Invoke($"PSKReporter: {ex.Message}"); }
     }

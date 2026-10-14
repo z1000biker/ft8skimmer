@@ -16,7 +16,7 @@ public sealed class UsbDemodulator
 
     public UsbDemodulator(int inputRate, double offsetHz)
     {
-        if (inputRate != 960_000) throw new ArgumentException("Υποστηρίζεται μόνο 960000 S/s.");
+        if (inputRate != 960_000) throw new ArgumentException("Only 960000 S/s is supported.");
         _inRate = inputRate;
         _d1 = new ComplexDecimator(FirDesign.LowPass(64, 30_000, inputRate), 8);   // → 120 kS/s
         _d2 = new ComplexDecimator(FirDesign.LowPass(129, 2_600, 120_000), 10);     // → 12 kS/s
