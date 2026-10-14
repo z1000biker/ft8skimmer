@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace Skimmer.Core.Native;
 
 /// <summary>
-/// P/Invoke για το librtlsdr. Στα Windows χρειάζεται το rtlsdr.dll (και libusb-1.0.dll)
+/// P/Invoke για το librtlsdr. Στα Windows χρειάζεται μόνο το x64/rtlsdr.dll (libusb ενσωματωμένο)
 /// από τις εκδόσεις του rtl-sdr-blog, το μόνο που χειρίζεται σωστά τον upconverter HF του V4.
 /// </summary>
 internal static partial class RtlSdrNative

@@ -178,7 +178,7 @@ public partial class MainWindow : Window
         catch (DllNotFoundException)
         {
             StopEngine();
-            Warn("rtlsdr.dll is missing. Copy rtlsdr.dll and libusb-1.0.dll (x64) from the rtl-sdr-blog release next to the executable.");
+            Warn("rtlsdr.dll is missing. Copy x64/rtlsdr.dll from rtl-sdr-blog Release.zip (v1.3.6) next to the executable.");
         }
         catch (Exception ex)
         {

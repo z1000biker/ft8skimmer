@@ -19,7 +19,7 @@
 - **.NET 10 Desktop Runtime.**
 - **WebView2 Runtime** (υπάρχει ήδη στα Windows 11).
 - **Οδηγός WinUSB** για το dongle, μέσω Zadig (όπως για SDR# / SDR++).
-- **`rtlsdr.dll` και `libusb-1.0.dll`** από τις εκδόσεις του [rtl-sdr-blog](https://github.com/rtlsdrblog/rtl-sdr-blog/releases), δίπλα στο `RtlFt8Skimmer.exe`. Το κανονικό librtlsdr δεν ξέρει τον upconverter HF του V4.
+- **`rtlsdr.dll`** του rtl-sdr-blog v1.3.6 (`Release.zip` → `x64/rtlsdr.dll`). Υπάρχει ήδη στο `src/Skimmer.Wpf/native/` και αντιγράφεται αυτόματα. Έχει το libusb ενσωματωμένο. Το κανονικό librtlsdr δεν ξέρει τον upconverter HF του V4.
 - **WSJT-X** εγκατεστημένο. Το πρόγραμμα ψάχνει το `jt9.exe` στο `C:\WSJT\wsjtx\bin\`· αλλιώς το δείχνετε με το κουμπί «…».
 - Κεραία HF στην είσοδο του V4 (ακόμη και ένα σύρμα 10–20 m δίνει αποτελέσματα).
 

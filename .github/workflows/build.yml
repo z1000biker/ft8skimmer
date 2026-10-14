@@ -34,7 +34,6 @@ jobs:
           Get-ChildItem rtlblog -Filter *.zip | ForEach-Object { Expand-Archive $_.FullName -DestinationPath rtlblog\x -Force }
           $dll = Get-ChildItem rtlblog\x -Recurse -Filter rtlsdr.dll | Where-Object { $_.FullName -match 'x64' } | Select-Object -First 1
           Copy-Item $dll.FullName publish\
-          Copy-Item (Join-Path $dll.DirectoryName 'libusb-1.0.dll') publish\ -ErrorAction SilentlyContinue
       - uses: actions/upload-artifact@v4
         with:
           name: RtlFt8Skimmer-win-x64

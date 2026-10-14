@@ -1,1 +1,4 @@
-Put rtlsdr.dll and libusb-1.0.dll (x64) from the rtl-sdr-blog release here. They are copied to the output folder on every build.
+rtlsdr.dll = x64/rtlsdr.dll from rtl-sdr-blog v1.3.6 (Release.zip),
+https://github.com/rtlsdrblog/rtl-sdr-blog/releases/tag/v1.3.6  (GPL-2.0, source at that link).
+libusb is statically linked inside it; no other DLL is needed.
+It is copied next to RtlFt8Skimmer.exe on every build.
